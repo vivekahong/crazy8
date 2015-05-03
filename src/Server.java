@@ -3,6 +3,7 @@
  */
 import java.net.*;
 import java.io.*;
+import java.util.Scanner;
 
 public class Server
 {
@@ -18,12 +19,18 @@ public class Server
             System.err.println("Could not listen on port: 10007.");
             System.exit(1);
         }
+        Scanner in = new Scanner(System.in);
+        System.out.println("How many players?");
+        int playerCount = Integer.parseInt(in.next());
 
-        Socket clientSocket = null;
+        Socket[] clientSockets = new Socket[playerCount];
         System.out.println ("Waiting for connection.....");
 
         try {
-            clientSocket = serverSocket.accept();
+            for(int i = 0 ; i < playerCount;i++){
+                clientSockets[i] = serverSocket.accept();
+            }
+            System.out.println("Player "+ (i+1) +"connected.");
         }
         catch (IOException e)
         {
@@ -31,20 +38,30 @@ public class Server
             System.exit(1);
         }
 
-        System.out.println ("Connection successful");
+        System.out.println ("All connection successful");
+        System.out.println ("Setting up I/O");
+        BufferedReader[] in = new BufferedReader[playerCount];
+        PrintWriter[] out = new PrintWriter[playerCount];
+
+        for(int i=0 ; i < playerCount;i++ ){
+            in[i] = new BufferedReader( new InputStreamReader(clientSockets[i].getInputStream()));
+            out[i] = new PrintWriter(clientSockets[i].getOutputStream(),true);
+        }
         System.out.println ("Waiting for input.....");
 
-        PrintWriter out = new PrintWriter(clientSocket.getOutputStream(),
-                true);
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader( clientSocket.getInputStream()));
+        String inputLine="";
+        String inputLine2="";
 
-        String inputLine;
 
-        while ((inputLine = in.readLine()) != null)
+        while ( (inputLine2 = in2.readLine())!= null)
         {
-            System.out.println ("Server: " + inputLine);
-            out.println(inputLine);
+            if(!inputLine.equals("")) {
+                System.out.println("Server: " + inputLine);
+                out.println(inputLine);
+            }else {
+                System.out.println("Server: " + inputLine);
+                out2.println(inputLine2);
+            }
 
             if (inputLine.equals("Bye."))
                 break;
