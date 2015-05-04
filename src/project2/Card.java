@@ -1,7 +1,11 @@
+package project2;
+
+import java.io.Serializable;
+
 /**
  * Created by kegan on 5/1/15.
  */
-public class Card {
+public class Card implements Serializable {
     int rank, suit;
     public Card(int rank, int suit){
         this.rank = rank;
@@ -75,5 +79,8 @@ public class Card {
                 break;
         }
         return result;
+    }
+    public String getName(){
+        return getRank() + " of " + getSuit();
     }
 }
