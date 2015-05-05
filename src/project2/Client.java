@@ -7,17 +7,25 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Client {
-    public static ArrayList<Integer> playOptions(Card topDiscardCard, ArrayList<Card> hand){
+    public static ArrayList<Integer> playOptions(Card topDiscardCard, ArrayList<Card> hand, int chosenSuit){
         String result="";
         ArrayList<Integer> options = new ArrayList<Integer>();
         int num = 0;
 
         for(int i = 0 ; i < hand.size();i++){
             Card card = hand.get(i);
-            if(card.rank == topDiscardCard.rank || card.suit == topDiscardCard.suit){
-                result += num + ": "+ card.getName() +"    ";
-                options.add(i);
-                num++;
+            if(chosenSuit == -1) { //top discarded card is not eight
+                if (card.rank == topDiscardCard.rank || card.suit == topDiscardCard.suit || card.rank == 8) {
+                    result += num + ": " + card.getName() + "    ";
+                    options.add(i);
+                    num++;
+                }
+            }else{ //top discarded card is eight
+                if(card.suit == chosenSuit || card.rank == 8){
+                    result += num + ": " + card.getName() + "    ";
+                    options.add(i);
+                    num++;
+                }
             }
         }
 
@@ -32,6 +40,17 @@ public class Client {
         }
         System.out.println("Your options are: \n"+result);
     }
+    public static int chooseSuit( Scanner stdIn){
+        System.out.println("Please choose a suit as top suit:\n1. Spades  2. Hearts  3. Diamonds  4. Clubs");
+        int choice = stdIn.nextInt();
+
+        while(choice < 1 && choice >4){
+            System.out.println("Invalid input. Please choose again.");
+            choice = stdIn.nextInt();
+        }
+        return choice;
+    }
+
     public static String displayHand(ArrayList<Card> hand){
         String result = "Your hand is currently:\n";
         for(int i = 0 ; i < hand.size();i++){
@@ -48,6 +67,19 @@ public class Client {
         }catch(IOException ex){
 
         }
+    }
+    public static String getSuit(int i){
+        switch (i){
+            case 1:
+                return "Spades";
+            case 2:
+                return "Hearts";
+            case 3:
+                return "Diamonds";
+            case 4:
+                return "Clubs";
+        }
+        return "input not valid";
     }
     public static void main(String[] args) throws IOException, ClassNotFoundException {
 
@@ -108,10 +140,17 @@ public class Client {
         while(!done){
             String serverMsg = (String)in.readObject();
             int drawCount = 0;
+            int chosenSuit = -1;
             switch(serverMsg.charAt(0)){
                 case 'T': //server message for this player's turn
                     topDiscardCard = (Card)in.readObject();
                     System.out.println("Current top card from the discard pile is: " + topDiscardCard.getName());
+                    break;
+                case 'E': //server message for eight card as top discard card
+                    chosenSuit = (Integer)in.readObject();
+                    topDiscardCard = (Card)in.readObject();
+                    System.out.println("Current top card from the discard pile is: " + topDiscardCard.getName());
+                    System.out.println("Chosen suit: " +getSuit(chosenSuit));
                     break;
                 case 'D': //server message for game over
                     done = true;
@@ -124,7 +163,9 @@ public class Client {
                 ArrayList<Integer> options = new ArrayList<Integer>();
                 while(options.size()==0 && (drawCount < drawOption || drawOption <= 0)) {
                     System.out.println(displayHand(hand));
-                    options = playOptions(topDiscardCard, hand);
+
+                    options = playOptions(topDiscardCard, hand, chosenSuit);
+
                     if(options.size()==0 && (drawCount < drawOption || drawOption <=0)){
                         System.out.println("Don't have any card to play");
                         System.out.println("Drawing");
@@ -132,7 +173,7 @@ public class Client {
                         drawCount++;
                     }
                 }
-                options = playOptions(topDiscardCard,hand);
+                options = playOptions(topDiscardCard,hand,chosenSuit);
                 if(drawCount >= drawOption && options.size()==0 && drawOption > 0 ){
                     System.out.println("Maximum draw count reached. Skipping this turn\n");
                     out.writeObject("MAXDRAW");
@@ -156,7 +197,14 @@ public class Client {
                     if (hand.size() == 0) {
                         out.writeObject("FINISHED");
                     } else {
-                        out.writeObject("PLAYED");
+                        //check if played card is an eight
+                        if(playCard.rank == 8){
+                            out.writeObject("EIGHT");
+                            chosenSuit = (Integer)chooseSuit(stdIn);
+                            out.writeObject(chosenSuit);
+                        }else {
+                            out.writeObject("PLAYED");
+                        }
                         out.writeObject(playCard);
                     }
 

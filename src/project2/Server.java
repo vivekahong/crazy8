@@ -103,21 +103,33 @@ public class Server
         boolean finish = false;
         int winner = -1;
         int round = 1;
+        boolean eight = false;
+        int chosenSuit = -1;
         //start Rounds
 
         while(!finish) {
             System.out.println("Round " +round);
             for (int i = 0; i < playerCount; i++) {
                 System.out.println("Player " + i + "'s turn to play");
-                out[i].writeObject("TURN");
+                if(eight){
+                    out[i].writeObject("EIGHT");
+                    out[i].writeObject(chosenSuit);
+                }else {
+                    out[i].writeObject("TURN");
+                }
                 out[i].writeObject(deck.topDiscardCard()); //update top discard card for players
                 boolean turnOver = false;
                 boolean maxDraw = false;
+                eight = false;
                 while (!turnOver) {
                     Object playerReply = in[i].readObject();
                     switch ((char)((String) playerReply).charAt(0)){
                         case 'P': //card played
                             turnOver = true;
+                            break;
+                        case 'E': //eight played
+                            turnOver = true;
+                            eight = true;
                             break;
                         case 'D': //draw a card
                             out[i].writeObject(deck.draw());
@@ -135,9 +147,13 @@ public class Server
                     }
                 }
                 if(!maxDraw && !finish) {
+                    if(eight){
+                        chosenSuit = (Integer) in[i].readObject();
+                    }
                     Card playCard = (Card) in[i].readObject();
                     System.out.println("Player " + i + " has played: " + playCard.getName());
                     deck.discard(playCard);
+                    //how to handle 8
                 }else{
                     System.out.println("Player " + i +" skips this turn");
                 }
