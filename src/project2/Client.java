@@ -84,11 +84,11 @@ public class Client {
     public static void main(String[] args) throws IOException, ClassNotFoundException {
 
         String serverHostname = new String ("127.0.0.1");
-
+        int port = 10007;
         if (args.length > 0)
             serverHostname = args[0];
         System.out.println ("Attemping to connect to host " +
-                serverHostname + " on port 10007.");
+                serverHostname + " on port " + port + ".");
 
         Socket echoSocket = null;
         ObjectOutputStream out = null;
@@ -96,7 +96,7 @@ public class Client {
 
         try {
             // echoSocket = new Socket("taranis", 7);
-            echoSocket = new Socket(serverHostname, 10007);
+            echoSocket = new Socket(serverHostname, port);
             out = new ObjectOutputStream(echoSocket.getOutputStream());
             in = new ObjectInputStream(echoSocket.getInputStream());
         } catch (UnknownHostException e) {
@@ -178,7 +178,7 @@ public class Client {
                     System.out.println("Maximum draw count reached. Skipping this turn\n");
                     out.writeObject("MAXDRAW");
                 }else {
-                    displayHand(hand);
+                    System.out.println(displayHand(hand));
                     printOptions(hand,options);
                     System.out.println("Please select an option by entering its corresponding number");
                     boolean flag = true;
@@ -216,7 +216,13 @@ public class Client {
             }
         }
         System.out.println("Game over");
-        System.out.println("The winner is Player " + (Integer)in.readObject() + "!");
+        int winner = -2;
+        winner = (Integer)in.readObject();
+        if(winner == -1){//AI is the winner
+            System.out.println("Game Over\nAI wins!");
+        }else {
+            System.out.println("The winner is Player " + winner + "!");
+        }
 
         out.close();
         in.close();

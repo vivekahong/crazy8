@@ -5,6 +5,7 @@ import java.net.*;
 import java.io.*;
 import java.util.Scanner;
 
+
 public class Server
 {
     public static void closeConnections(Socket[] sockets, ObjectInputStream[] in , ObjectOutputStream[] out){
@@ -25,22 +26,35 @@ public class Server
 
 
     }
+    public static String getSuit(int i){
+        switch (i){
+            case 1:
+                return "Spades";
+            case 2:
+                return "Hearts";
+            case 3:
+                return "Diamonds";
+            case 4:
+                return "Clubs";
+        }
+        return "input not valid";
+    }
     public static void main(String[] args) throws IOException,ClassNotFoundException
     {
         ServerSocket serverSocket = null;
-
+        int port = 10007;
         try {
-            serverSocket = new ServerSocket(10007);
+            serverSocket = new ServerSocket(port);
         }
         catch (IOException e)
         {
-            System.err.println("Could not listen on port: 10007.");
+            System.err.println("Could not listen on port: "+port + ".");
             System.exit(1);
         }
 
         //asking for game options
         Scanner stdIn = new Scanner(System.in);
-        System.out.println("How many players?");
+        System.out.println("How many players? 1 for playing against AI");
         int playerCount = Integer.parseInt(stdIn.next());
         System.out.println("Number of Draws before skipping to next person?  num <= 0 : for unlimited drawing");
         int drawOption = Integer.parseInt(stdIn.next());
@@ -80,14 +94,21 @@ public class Server
             System.out.println("Applying options to player " + i);
             out[i].writeObject(drawOption);
         }
+        //initialize deck
+        Deck deck = new Deck(playerCount/4+1);//add a deck for every 4 additional players
+        deck.shuffle();
+
+        //initialize AI if needed
+        AI cpu = new AI(drawOption,deck);
 
         //shuffle and distribute cards
-        Deck deck = new Deck();
-        deck.shuffle();
         System.out.println("Distributing cards");
         for(int i = 0 ; i < 5;i++){
             for(int j=0; j < playerCount; j ++){
                 out[j].writeObject(deck.draw());
+            }
+            if(playerCount==1) { //draw card for ai
+                cpu.add(deck.draw());
             }
         }
 
@@ -96,20 +117,23 @@ public class Server
         deck.discard(deck.draw());
         Card topDiscardCard = deck.topDiscardCard();
         for(int i = 0 ; i < playerCount;i++){
-           out[i].writeObject(deck.topDiscardCard());
+           out[i].writeObject(deck.topDiscardCard()); // sending top discard card info to the players
         }
         System.out.println("The top card of the discard pile is: " + topDiscardCard.getName());
 
         boolean finish = false;
-        int winner = -1;
+        int winner = -2;
         int round = 1;
         boolean eight = false;
         int chosenSuit = -1;
-        //start Rounds
 
+
+
+        //start Rounds
         while(!finish) {
             System.out.println("Round " +round);
             for (int i = 0; i < playerCount; i++) {
+                //send player message
                 System.out.println("Player " + i + "'s turn to play");
                 if(eight){
                     out[i].writeObject("EIGHT");
@@ -117,10 +141,13 @@ public class Server
                 }else {
                     out[i].writeObject("TURN");
                 }
+
                 out[i].writeObject(deck.topDiscardCard()); //update top discard card for players
-                boolean turnOver = false;
-                boolean maxDraw = false;
+                boolean turnOver = false;  //whether a player's turn is over
+                boolean maxDraw = false; //whether a player has reached maximum drawing limit
                 eight = false;
+
+                //process player message
                 while (!turnOver) {
                     Object playerReply = in[i].readObject();
                     switch ((char)((String) playerReply).charAt(0)){
@@ -147,8 +174,10 @@ public class Server
                     }
                 }
                 if(!maxDraw && !finish) {
-                    if(eight){
+                    if(eight){//player has played an eight card
                         chosenSuit = (Integer) in[i].readObject();
+                    }else{
+                        chosenSuit = 0;
                     }
                     Card playCard = (Card) in[i].readObject();
                     System.out.println("Player " + i + " has played: " + playCard.getName());
@@ -159,6 +188,28 @@ public class Server
                 }
                 if(finish){
                     break;
+                }
+                if(playerCount == 1){
+                    //AI actions
+                    Card topDiscardCardAI = deck.topDiscardCard();
+                    System.out.println("Current top card from the discard pile is: "+ topDiscardCardAI.getName());
+                    if(topDiscardCardAI.rank == 8){ //eight card operation
+                        System.out.println("Chosen suit is: " + getSuit(chosenSuit));
+                        chosenSuit = cpu.playCard(chosenSuit, 8);
+                    }else {
+                        chosenSuit = cpu.playCard(topDiscardCardAI.suit,topDiscardCardAI.rank);
+                    }
+
+                    if(chosenSuit >= 1 ){//AI played an eight card
+                        eight = true;
+                    }else{
+                        eight = false;
+                    }
+                    //check if cpu has won the game or not
+                    if(cpu.checkWin()){
+                        finish = true;
+                        winner = -1;
+                    }
                 }
 
             }
@@ -172,7 +223,12 @@ public class Server
             out[i].writeObject("DONE");
             out[i].writeObject(winner);
         }
-        System.out.println("Game Over\nPlayer " + winner +" is the winner!");
+        if(winner == -1){// AI is the winner
+            System.out.println("Game Over\nAI wins!");
+        }else{
+            System.out.println("Game Over\nPlayer " + winner +" is the winner!");
+        }
+
 
 
         closeConnections(clientSockets,in,out);

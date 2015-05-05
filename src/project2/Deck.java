@@ -10,12 +10,14 @@ public class Deck {
     ArrayList<Card> deck = new ArrayList<Card>();
     ArrayList<Card> discardPile = new ArrayList<Card>();
 
-    public Deck(){
-        for (int i = 1; i <= 13; i++) {
-            deck.add(new Card(i, 1));
-            deck.add(new Card(i, 2));
-            deck.add(new Card(i, 3));
-            deck.add(new Card(i, 4));
+    public Deck(int deckCount){
+        for(int c = 0; c < deckCount;c++) {
+            for (int i = 1; i <= 13; i++) {
+                deck.add(new Card(i, 1));
+                deck.add(new Card(i, 2));
+                deck.add(new Card(i, 3));
+                deck.add(new Card(i, 4));
+            }
         }
     }
     public void printDeck(){
