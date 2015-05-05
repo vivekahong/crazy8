@@ -42,7 +42,7 @@ public class Server
         Scanner stdIn = new Scanner(System.in);
         System.out.println("How many players?");
         int playerCount = Integer.parseInt(stdIn.next());
-        System.out.println("Number of Draws before skipping to next person?  num < 0 : for unlimited drawing");
+        System.out.println("Number of Draws before skipping to next person?  num <= 0 : for unlimited drawing");
         int drawOption = Integer.parseInt(stdIn.next());
 
         Socket[] clientSockets = new Socket[playerCount];

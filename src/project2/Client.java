@@ -122,10 +122,10 @@ public class Client {
                 System.out.println("Your turn to pick");
 
                 ArrayList<Integer> options = new ArrayList<Integer>();
-                while(options.size()==0 && drawCount < drawOption) {
+                while(options.size()==0 && (drawCount < drawOption || drawOption <= 0)) {
                     System.out.println(displayHand(hand));
                     options = playOptions(topDiscardCard, hand);
-                    if(options.size()==0 && drawCount < drawOption){
+                    if(options.size()==0 && (drawCount < drawOption || drawOption <=0)){
                         System.out.println("Don't have any card to play");
                         System.out.println("Drawing");
                         draw(in,out,hand);
@@ -133,7 +133,7 @@ public class Client {
                     }
                 }
                 options = playOptions(topDiscardCard,hand);
-                if(drawCount >= drawOption && options.size()==0){
+                if(drawCount >= drawOption && options.size()==0 && drawOption > 0 ){
                     System.out.println("Maximum draw count reached. Skipping this turn\n");
                     out.writeObject("MAXDRAW");
                 }else {
@@ -165,20 +165,10 @@ public class Client {
 
                     System.out.println("Waiting for your next turn\n");
                 }
-
             }
         }
         System.out.println("Game over");
         System.out.println("The winner is Player " + (Integer)in.readObject() + "!");
-
-
-
-
-//        while ((userInput = stdIn.readLine()) != null) {
-//            out.println(userInput);
-//            System.out.println("echo: " + in.readLine());
-//            System.out.print ("input: ");
-//        }
 
         out.close();
         in.close();
