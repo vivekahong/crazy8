@@ -1,6 +1,8 @@
-package project2; /**
- * Created by sehong on 5/1/15.
- */
+/**
+ Client.java
+ Created by sehong on 5/1/15.
+ Description: client for the crazy8 program
+*/
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
@@ -11,7 +13,7 @@ public class Client {
         String result="";
         ArrayList<Integer> options = new ArrayList<Integer>();
         int num = 0;
-
+        
         for(int i = 0 ; i < hand.size();i++){
             Card card = hand.get(i);
             if(chosenSuit == -1) { //top discarded card is not eight
@@ -28,10 +30,10 @@ public class Client {
                 }
             }
         }
-
+        
         return options;
-
-
+        
+        
     }
     public static void printOptions(ArrayList<Card> hand, ArrayList<Integer> options){
         String result = "";
@@ -43,14 +45,14 @@ public class Client {
     public static int chooseSuit( Scanner stdIn){
         System.out.println("Please choose a suit as top suit:\n1. Spades  2. Hearts  3. Diamonds  4. Clubs");
         int choice = stdIn.nextInt();
-
+        
         while(choice < 1 && choice >4){
             System.out.println("Invalid input. Please choose again.");
             choice = stdIn.nextInt();
         }
         return choice;
     }
-
+    
     public static String displayHand(ArrayList<Card> hand){
         String result = "Your hand is currently:\n";
         for(int i = 0 ; i < hand.size();i++){
@@ -63,9 +65,9 @@ public class Client {
             out.writeObject("DRAW");
             hand.add((Card)in.readObject());
         }catch(ClassNotFoundException e){
-
+            
         }catch(IOException ex){
-
+            
         }
     }
     public static String getSuit(int i){
@@ -82,18 +84,28 @@ public class Client {
         return "input not valid";
     }
     public static void main(String[] args) throws IOException, ClassNotFoundException {
-
-        String serverHostname = new String ("127.0.0.1");
-        int port = 10007;
-        if (args.length > 0)
+        String serverHostname;
+        int port;
+        Scanner stdIn = new Scanner(System.in);
+        if(args.length == 2){ //socket configuration with arguments
             serverHostname = args[0];
+            port = Integer.parseInt(args[1]);
+        }else{//default
+            //localhost is 127.0.0.1
+            System.out.println("Please enter the server hostname:");
+            serverHostname = stdIn.next();
+            System.out.println("Please enter the server port:");
+            port = stdIn.nextInt();
+        }
+        
+    
         System.out.println ("Attemping to connect to host " +
-                serverHostname + " on port " + port + ".");
-
+                            serverHostname + " on port " + port + ".");
+        
         Socket echoSocket = null;
         ObjectOutputStream out = null;
         ObjectInputStream in = null;
-
+        
         try {
             // echoSocket = new Socket("taranis", 7);
             echoSocket = new Socket(serverHostname, port);
@@ -104,20 +116,20 @@ public class Client {
             System.exit(1);
         } catch (IOException e) {
             System.err.println("Couldn't get I/O for "
-                    + "the connection to: " + serverHostname);
+                               + "the connection to: " + serverHostname);
             System.exit(1);
         }
         System.out.println("You have successfully connected to the server!");
-
+        
         //player configuration
         int id = (Integer)in.readObject();
         System.out.println("Your player id is " + id);
         int drawOption = (Integer)in.readObject();
         System.out.println("Draw option is set to " + drawOption + ".  num < 0 means unlimited draw");
-        Scanner stdIn = new Scanner(System.in);
 
+        
         ArrayList<Card> hand = new ArrayList<Card>();
-
+        
         System.out.println("Distributing cards");
         for(int i = 0 ; i < 5;i++) {
             try {
@@ -127,10 +139,10 @@ public class Client {
                     hand.add(temp);
                 }
             }catch (ClassNotFoundException e){
-
+                
             }
-
-
+            
+            
         }
         boolean done = false;
         Card topDiscardCard = (Card)in.readObject();
@@ -156,17 +168,17 @@ public class Client {
                     done = true;
                     break;
             }
-
+            
             if(!done){
                 System.out.println("Your turn to pick");
-
+                
                 ArrayList<Integer> options = new ArrayList<Integer>();
-
+                
                 while(options.size()==0 && (drawCount < drawOption || drawOption <= 0)) {
-
-
+                    
+                    
                     options = playOptions(topDiscardCard, hand, chosenSuit);
-
+                    
                     if(options.size()==0 && (drawCount < drawOption || drawOption <=0)){
                         System.out.println(displayHand(hand));
                         System.out.println("Don't have any card to play");
@@ -209,20 +221,20 @@ public class Client {
                         }
                         out.writeObject(playCard);
                     }
-
+                    
                     System.out.println("Waiting for your next turn\n");
                 }
             }
         }
-        System.out.println("Game over");
+        System.out.println("GAME OVER");
         int winner = -2;
         winner = (Integer)in.readObject();
         if(winner == -1){//AI is the winner
-            System.out.println("Game Over\nAI wins!");
+            System.out.println("AI wins!");
         }else {
             System.out.println("The winner is Player " + winner + "!");
         }
-
+        
         out.close();
         in.close();
         stdIn.close();

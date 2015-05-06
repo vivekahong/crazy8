@@ -1,6 +1,8 @@
-package project2; /**
- * Created by sehong on 5/1/15.
- */
+/**
+ Server.java
+ Created by Shien Hong on 5/1/15.
+ Description: Server for the crazy8
+*/
 import java.net.*;
 import java.io.*;
 import java.util.Scanner;
@@ -20,11 +22,11 @@ public class Server
                 }
             }
             catch(IOException e){
-
+                
             }
         }
-
-
+        
+        
     }
     public static String getSuit(int i){
         switch (i){
@@ -42,7 +44,14 @@ public class Server
     public static void main(String[] args) throws IOException,ClassNotFoundException
     {
         ServerSocket serverSocket = null;
-        int port = 10007;
+        int port;
+        Scanner stdIn = new Scanner(System.in);
+        if(args.length == 1){
+            port = Integer.parseInt(args[0]);
+        }else{
+            System.out.println("Please enter the server port:");
+            port = stdIn.nextInt();
+        }
         try {
             serverSocket = new ServerSocket(port);
         }
@@ -51,32 +60,31 @@ public class Server
             System.err.println("Could not listen on port: "+port + ".");
             System.exit(1);
         }
-
+        
         //asking for game options
-        Scanner stdIn = new Scanner(System.in);
         System.out.println("How many players? 1 for playing against AI");
         int playerCount = Integer.parseInt(stdIn.next());
         System.out.println("Number of Draws before skipping to next person?  num <= 0 : for unlimited drawing");
         int drawOption = Integer.parseInt(stdIn.next());
-
+        
         Socket[] clientSockets = new Socket[playerCount];
         System.out.println ("Waiting for connection.....");
-
+        
         //connect to player clients
         try {
             for(int i = 0 ; i < playerCount;i++){
                 clientSockets[i] = serverSocket.accept();
                 System.out.println("Player "+ i +" connected.");
             }
-
+            
         }
         catch (IOException e)
         {
             System.err.println("Accept failed.");
             System.exit(1);
         }
-
-
+        
+        
         //setting IO with player clients
         System.out.println ("All connection successful");
         System.out.println ("Setting up I/O");
@@ -88,7 +96,7 @@ public class Server
             out[i] = new ObjectOutputStream(clientSockets[i].getOutputStream());
             out[i].writeObject(i);
         }
-
+        
         //applying options
         for(int i = 0 ; i < playerCount;i++){
             System.out.println("Applying options to player " + i);
@@ -97,10 +105,10 @@ public class Server
         //initialize deck
         Deck deck = new Deck(playerCount/4+1);//add a deck for every 4 additional players
         deck.shuffle();
-
+        
         //initialize AI if needed
         AI cpu = new AI(drawOption,deck);
-
+        
         //shuffle and distribute cards
         System.out.println("Distributing cards");
         for(int i = 0 ; i < 5;i++){
@@ -111,24 +119,24 @@ public class Server
                 cpu.add(deck.draw());
             }
         }
-
-
-
+        
+        
+        
         deck.discard(deck.draw());
         Card topDiscardCard = deck.topDiscardCard();
         for(int i = 0 ; i < playerCount;i++){
-           out[i].writeObject(deck.topDiscardCard()); // sending top discard card info to the players
+            out[i].writeObject(deck.topDiscardCard()); // sending top discard card info to the players
         }
         System.out.println("The top card of the discard pile is: " + topDiscardCard.getName());
-
+        
         boolean finish = false;
         int winner = -2;
         int round = 1;
         boolean eight = false;
         int chosenSuit = -1;
-
-
-
+        
+        
+        
         //start Rounds
         while(!finish) {
             System.out.println("Round " +round);
@@ -141,12 +149,12 @@ public class Server
                 }else {
                     out[i].writeObject("TURN");
                 }
-
+                
                 out[i].writeObject(deck.topDiscardCard()); //update top discard card for players
                 boolean turnOver = false;  //whether a player's turn is over
                 boolean maxDraw = false; //whether a player has reached maximum drawing limit
                 eight = false;
-
+                
                 //process player message
                 while (!turnOver) {
                     Object playerReply = in[i].readObject();
@@ -170,7 +178,7 @@ public class Server
                             finish = true;
                             winner = i;
                             break;
-
+                            
                     }
                 }
                 if(!maxDraw && !finish) {
@@ -199,7 +207,7 @@ public class Server
                     }else {
                         chosenSuit = cpu.playCard(topDiscardCardAI.suit,topDiscardCardAI.rank);
                     }
-
+                    
                     if(chosenSuit >= 1 ){//AI played an eight card
                         eight = true;
                     }else{
@@ -211,26 +219,27 @@ public class Server
                         winner = -1;
                     }
                 }
-
+                
             }
-
+            
             round++;
             System.out.println();
         }
-
+        
         //declaring winner
         for(int i = 0 ; i <playerCount;i++){
             out[i].writeObject("DONE");
             out[i].writeObject(winner);
         }
+        System.out.println("GAME OVER");
         if(winner == -1){// AI is the winner
-            System.out.println("Game Over\nAI wins!");
+            System.out.println("AI wins!");
         }else{
-            System.out.println("Game Over\nPlayer " + winner +" is the winner!");
+            System.out.println("Player " + winner +" is the winner!");
         }
-
-
-
+        
+        
+        
         closeConnections(clientSockets,in,out);
         serverSocket.close();
     }

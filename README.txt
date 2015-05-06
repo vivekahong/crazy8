@@ -1,22 +1,28 @@
-Config notes:
-- Inside Server.java, change String serverHostName inside main to the computers ip address.
-- Inside both Server.java and Client.java, change int port inside main to the port you would like to use.
+Crazy 8
+==============
 
-To compile:
->make all
+Synopsis
+--------------
 
-To start the server:
->java Server
+Crazy project is a distributed project that is programmed to demonstrate the message passing by playing a game of crazy eight against multiple players or AI.
 
-To start the client:
->java Client
+Installation
+--------------
 
-Side note:
-You will be given stdout instructions for what is to be expected of stdin.
+1.Download the code into a directory  
+2.Build the files by using the following command:  
+`make all`
+3.The program is now ready to run  
+
+Code Example
+--------------
+	
+On the server side:
+`java Server {port}`
 
 Example of what to expect on the command-line:
 
->java Server
+>java Server 10007
 How many players? 1 for playing against AI
 >3
 Number of Draws before skipping to next person?  num <= 0 : for unlimited
@@ -39,7 +45,10 @@ Round 1
 Player 0's turn to play
 ...
 
->java Client
+On the Client side:
+`java Client {hostname} {port}`
+
+>java Client 192.12.69.186 10007
 Attemping to connect to host 192.12.69.186 on port 10007.
 You have successfully connected to the server!
 Your player id is 0
@@ -71,7 +80,7 @@ Please select an option by entering its corresponding number
 >0
 ...
 
->java Client
+>java Client 192.12.69.186 10007
 Attemping to connect to host 192.12.69.186 on port 10007.
 You have successfully connected to the server!
 Your player id is 1
@@ -84,7 +93,7 @@ Clubs
 Waiting for your turn to play
 ...
 
->java Client
+>java Client 192.12.69.186 10007
 Attemping to connect to host 192.12.69.186 on port 10007.
 You have successfully connected to the server!
 Your player id is 2
@@ -96,3 +105,10 @@ Four of Diamonds    Queen of Spades    Nine of Spades    Four of Clubs    Two
 of Diamonds    
 Waiting for your turn to play
 ...
+
+
+Contributors
+--------------
+
+Shien Hong			honghsien5@gmail.com
+Kegan Schaub		kshaub@email.arizona.edu
