@@ -46,7 +46,7 @@ Player 0's turn to play
 ...
 ```
 
-On the Client side:
+On the Client side:  
 `java Client {hostname} {port}`
 
 Client 0
