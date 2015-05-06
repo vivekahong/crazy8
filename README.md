@@ -17,11 +17,11 @@ Installation
 Code Example
 --------------
 	
-On the server side:
-`java Server {port}`
+On the server side:  
+`java Server {port}`  
 
-Example of what to expect on the command-line:
-
+Example of what to expect on the command-line:  
+```
 >java Server 10007
 How many players? 1 for playing against AI
 >3
@@ -44,10 +44,13 @@ The top card of the discard pile is: Six of Spades
 Round 1
 Player 0's turn to play
 ...
+```
 
 On the Client side:
 `java Client {hostname} {port}`
 
+Client 0
+```
 >java Client 192.12.69.186 10007
 Attemping to connect to host 192.12.69.186 on port 10007.
 You have successfully connected to the server!
@@ -79,7 +82,9 @@ Your options are:
 Please select an option by entering its corresponding number
 >0
 ...
-
+```
+Client 2
+```
 >java Client 192.12.69.186 10007
 Attemping to connect to host 192.12.69.186 on port 10007.
 You have successfully connected to the server!
@@ -92,7 +97,10 @@ Two of Clubs    Two of Hearts    Ace of Diamonds    Three of Clubs    Six of
 Clubs
 Waiting for your turn to play
 ...
+```
 
+Client 3
+```
 >java Client 192.12.69.186 10007
 Attemping to connect to host 192.12.69.186 on port 10007.
 You have successfully connected to the server!
@@ -105,7 +113,7 @@ Four of Diamonds    Queen of Spades    Nine of Spades    Four of Clubs    Two
 of Diamonds    
 Waiting for your turn to play
 ...
-
+```
 
 Contributors
 --------------
