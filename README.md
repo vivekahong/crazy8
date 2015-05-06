@@ -11,7 +11,7 @@ Installation
 
 1.Download the code into a directory  
 2.Build the files by using the following command:  
-`make all`
+`make all`  
 3.The program is now ready to run  
 
 Code Example
