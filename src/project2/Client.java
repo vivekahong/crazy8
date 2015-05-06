@@ -161,12 +161,14 @@ public class Client {
                 System.out.println("Your turn to pick");
 
                 ArrayList<Integer> options = new ArrayList<Integer>();
+
                 while(options.size()==0 && (drawCount < drawOption || drawOption <= 0)) {
-                    System.out.println(displayHand(hand));
+
 
                     options = playOptions(topDiscardCard, hand, chosenSuit);
 
                     if(options.size()==0 && (drawCount < drawOption || drawOption <=0)){
+                        System.out.println(displayHand(hand));
                         System.out.println("Don't have any card to play");
                         System.out.println("Drawing");
                         draw(in,out,hand);
@@ -207,9 +209,6 @@ public class Client {
                         }
                         out.writeObject(playCard);
                     }
-
-
-
 
                     System.out.println("Waiting for your next turn\n");
                 }
