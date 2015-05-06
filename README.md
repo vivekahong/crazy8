@@ -4,7 +4,7 @@ Crazy 8
 Synopsis
 --------------
 
-Crazy project is a distributed project that is programmed to demonstrate the message passing by playing a game of crazy eight against multiple players or AI.
+Crazy project is a distributed project that is programmed to demonstrate the message passing by playing a game of crazy eight against multiple players or against AI.
 
 Installation
 --------------
