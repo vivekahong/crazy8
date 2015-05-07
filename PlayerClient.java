@@ -1,5 +1,5 @@
 /**
- Client.java
+ PlayerClient.java
  Created by sehong on 5/1/15.
  Description: client for the crazy8 program
 */
@@ -8,7 +8,7 @@ import java.net.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class Client {
+public class PlayerClient {
     public static ArrayList<Integer> playOptions(Card topDiscardCard, ArrayList<Card> hand, int chosenSuit){
         String result="";
         ArrayList<Integer> options = new ArrayList<Integer>();
