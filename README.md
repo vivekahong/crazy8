@@ -118,5 +118,6 @@ Waiting for your turn to play
 Contributors
 --------------
 
-Shien Hong			honghsien5@gmail.com  
+Shien Hong		honghsien5@gmail.com  
 Kegan Schaub		kshaub@email.arizona.edu
+Leo Hong		paolaih@andrew.cmu.edu
